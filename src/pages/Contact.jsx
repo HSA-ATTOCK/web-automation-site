@@ -1,14 +1,46 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import "../styles/contact.css";
 
 const Contact = () => {
   const formRef = useRef(null);
+  const [statusMessage, setStatusMessage] = useState(null);
+  const [statusType, setStatusType] = useState(null); // "success" | "error"
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Form submission logic would go here
-    alert("Thank you for your message! We will contact you soon.");
-    formRef.current.reset();
+
+    const formData = {
+      name: e.target.name.value,
+      email: e.target.email.value,
+      phone: e.target.phone.value || "", // optional
+      business: e.target.business.value,
+      message: e.target.message.value,
+    };
+
+    try {
+      const res = await fetch(
+        "https://haider530.app.n8n.cloud/webhook/contact",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to send");
+
+      setStatusType("success");
+      setStatusMessage(
+        "✅ Thank you for your message! We’ll contact you soon."
+      );
+      formRef.current.reset();
+    } catch (error) {
+      console.error("❌ Error:", error);
+      setStatusType("error");
+      setStatusMessage("❌ Something went wrong. Please try again.");
+    }
   };
 
   return (
@@ -29,19 +61,23 @@ const Contact = () => {
               <h2>Send Us a Message</h2>
               <form ref={formRef} onSubmit={handleSubmit}>
                 <div className="form-group">
-                  <label htmlFor="name">Name</label>
+                  <label htmlFor="name">Name *</label>
                   <input type="text" id="name" name="name" required />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="email">Email</label>
+                  <label htmlFor="email">Email *</label>
                   <input type="email" id="email" name="email" required />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="business">Business Type</label>
+                  <label htmlFor="phone">Phone</label>
+                  <input type="text" id="phone" name="phone" />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="business">Business Type *</label>
                   <input type="text" id="business" name="business" required />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="message">How Can We Help?</label>
+                  <label htmlFor="message">How Can We Help? *</label>
                   <textarea
                     id="message"
                     name="message"
@@ -52,6 +88,17 @@ const Contact = () => {
                 <button type="submit" className="btn btn-primary">
                   Send Message
                 </button>
+
+                {/* Inline Status Message */}
+                {statusMessage && (
+                  <div
+                    className={`status-message ${
+                      statusType === "success" ? "success" : "error"
+                    }`}
+                  >
+                    {statusMessage}
+                  </div>
+                )}
               </form>
             </div>
 
