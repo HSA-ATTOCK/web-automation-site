@@ -18,16 +18,13 @@ const Contact = () => {
     };
 
     try {
-      const res = await fetch(
-        "https://haider530.app.n8n.cloud/webhook/contact",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+      const res = await fetch("https://hsabscs.app.n8n.cloud/webhook/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
       if (!res.ok) throw new Error("Failed to send");
 
